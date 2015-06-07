@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Document</title>
+<script type="text/javascript" src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+<style type="text/css">
+body{
+	background: url('clouds.jpg');
+	background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center; 
+	color: black;
+}
+#weather{
+	padding: 15px;
+	margin: 10px;
+	border-radius: 5px;
+}
+#weather-data{
+	background: blue;
+	opacity: 0.4;
+	width: 400px;
+}
+.transbox {
+	margin: 30px;
+	background-color: white;
+	border: 4px solid white;
+	opacity: 0.5;
+	filter: alpha(opacity=60); /* For IE8 and earlier */
+  color: black;
+  width: 600px;
+	}
+.response{
+	color: black;
+}
+ h3{
+	color: black;
+}
+h5{
+	font-family: Georgia,Serif;
+	font-size: 15px;
+	font-weight: bold;
+}
+h3,h4,h5,h6{
+	padding: 10px;
+}
+ul{
+	list-style: none;
+}
+ 
+ 
+</style>
+
+
+<script type="text/javascript">
+$(document).ready(function ( ) {
+ $(".transbox").hide();
+
+	$("#search-weather").on("submit",function(event) {
+		var city_name,temp,sky,humidity,wind,forecast,max,min,country,sunset,sunrise;
+		event.preventDefault();
+	  var form_data = $(this).serialize();
+	  //console.log("form_data",form_data);
+	  var city 			= form_data.split("=");
+		//console.log(city[1]);
+
+		//Send Ajax request for the weather data
+		$.getJSON( "http://api.openweathermap.org/data/2.5/weather?q="+city[1]+"&units=imperial", function( data ) {
+			 $("#search-weather").toggle();
+				//console.log(data);
+			  $.each( data, function( key, val ) {
+			  	
+		  		if(key==="name"){
+		  			city_name= val;
+		  		}
+			  	if(key==="main"){
+			  		temp = val.temp;
+			  		 max = val.temp_max;
+			  		 min = val.temp_min;
+			  		 humidity = val.humidity;
+			  	}
+			  	if(key==="weather"){
+			  		 weather = val;
+			  		 sky = val[0].description;
+		  	  }
+		  	  if(key==="sys"){
+			  		 country = val.country;
+			  		 var sun_rise = val.sunrise;
+			  		 var sun_set  = val.sunset;
+			  		 
+						 var date1 = new Date(sun_rise * 1000);
+						 var date2 = new Date(sun_set * 1000);
+						 sunrise = date1.toLocaleTimeString();
+						 sunset = date2.toLocaleTimeString();
+ 
+		  	  }
+		    });
+		}).error(function(error) { 
+			alert("ERROR LOADING DATA",error);
+			 });
+
+
+		$( ".transbox" ).fadeIn( "500", function() {
+    	$(".response").append("<h2>"+city_name+","+country+"</h2>"); 
+    	$(".response").append("<li>"+"<img src='sun.png' alt='sun' />"+temp+"&degF"+"</li>");
+    	$(".response").append("<center><h3>"+sky+"</h3></center>"); 
+    	$(".response").append("<center><h4>"+humidity+" % humidity"+"</h4></center>"); 
+    	$(".response").append("<center><h5>"+" Max : "+max+" Min : "+min+"</h5></center>"); 
+    	$(".response").append("<center><h4>"+" Sunrise : "+sunrise+" Sunset : "+sunset+"</h4></center>"); 
+    	 
+  });
+		
+	});
+})
+</script>
+</head>
+<body class="container">
+<h2 class="page-header">Search Weather</h2>
+
+<div>
+	<form id="search-weather">
+		<div class="form-qroup">
+			<label>City Name</label>
+			<input type="text" placeholder="London" name="city">
+			<input type="submit" name="submit" class="btn btn-primary"> 
+		</div>
+	</form>
+	<div class="transbox">
+		 <ul class="response">
+		 	
+		 </ul>
+	</div>
+</div>
+ 
+</body>
+</html>
